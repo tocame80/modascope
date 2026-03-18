@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-async function sendTelegramMessage(chatId: number, text: string): Promise<void> {
+async function sendTelegramMessage(chatId: string | number, text: string): Promise<void> {
   if (!BOT_TOKEN) {
     console.warn("TELEGRAM_BOT_TOKEN not configured");
     return;
