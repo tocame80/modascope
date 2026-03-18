@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
-const sources = [
-  { name: "Vogue", category: "Magazine" },
-  { name: "Gucci", category: "House" },
-  { name: "Prada", category: "House" },
-  { name: "Balenciaga", category: "House" },
-  { name: "Elle", category: "Magazine" },
-  { name: "Bazaar", category: "Magazine" },
-  { name: "Farfetch", category: "Retailer" },
-  { name: "Net-a-Porter", category: "Retailer" },
-  { name: "Vogue Runway", category: "Platform" },
-  { name: "JW Anderson", category: "House" },
-  { name: "Miu Miu", category: "House" },
-  { name: "StockX", category: "Platform" },
-];
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  brand: string;
+  category: string;
+  image: string;
+  whyItMatters: string;
+}
+
+interface Source {
+  name: string;
+  category: string;
+}
 
 const steps = [
   {
@@ -38,30 +38,6 @@ const steps = [
     number: "04",
     title: "Deliver",
     description: "Wake up to a curated digest via Telegram, app, or email — ready in 2 minutes.",
-  },
-];
-
-const sampleDigest = [
-  {
-    brand: "Prada",
-    title: "Raf Simons Exits Prada After Seven Years",
-    summary: "The creative director steps down following the SS25 show, ending a transformative partnership that redefined modern luxury.",
-    whyItMatters: "The departure signals a potential shift in luxury fashion leadership structure.",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-  },
-  {
-    brand: "Vogue",
-    title: "Paris Fashion Week SS25: The Return of Elegance",
-    summary: "A season of refined silhouettes and timeless aesthetics emerges across major houses.",
-    whyItMatters: "Oversized trends may finally give way to tailored, classic cuts.",
-    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=300&fit=crop",
-  },
-  {
-    brand: "Gucci",
-    title: "Sabato De Sarno's First Year: A Review",
-    summary: "Analyzing the impact of the creative director's minimalist vision on the brand's trajectory.",
-    whyItMatters: "Gucci's new direction sets benchmarks for heritage brands.",
-    image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop",
   },
 ];
 
@@ -108,13 +84,58 @@ const pricingTiers = [
 ];
 
 export default function Home() {
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [newsRes, sourcesRes] = await Promise.all([
+          fetch("/api/news?limit=3"),
+          fetch("/api/sources"),
+        ]);
+        const newsData = await newsRes.json();
+        const sourcesData = await sourcesRes.json();
+        setNews(newsData.data);
+        setSources(sourcesData.data);
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
       setSubmitted(true);
+    } catch (err) {
+      setError("Failed to subscribe. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -234,39 +255,45 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {sampleDigest.map((item, index) => (
-              <article
-                key={index}
-                className="group bg-[#0A0A0A] border border-[#F5F0E8]/5 hover:border-[#C9A962]/30 transition-all duration-500"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-[#0A0A0A]/80 text-[#C9A962] text-xs">
-                    {item.brand}
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-serif text-lg text-[#F5F0E8] mb-3 group-hover:text-[#C9A962] transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#F5F0E8]/50 text-sm mb-4 line-clamp-3">
-                    {item.summary}
-                  </p>
-                  <div className="pt-4 border-t border-[#F5F0E8]/5">
-                    <span className="text-[#C9A962] text-xs">Why it matters</span>
-                    <p className="text-[#F5F0E8]/70 text-sm mt-1">{item.whyItMatters}</p>
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-8 h-8 border-2 border-[#C9A962] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-6">
+              {news.map((item) => (
+                <article
+                  key={item.id}
+                  className="group bg-[#0A0A0A] border border-[#F5F0E8]/5 hover:border-[#C9A962]/30 transition-all duration-500"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+                    <span className="absolute top-4 left-4 px-3 py-1 bg-[#0A0A0A]/80 text-[#C9A962] text-xs">
+                      {item.brand}
+                    </span>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="p-6">
+                    <h3 className="font-serif text-lg text-[#F5F0E8] mb-3 group-hover:text-[#C9A962] transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-[#F5F0E8]/50 text-sm mb-4 line-clamp-3">
+                      {item.summary}
+                    </p>
+                    <div className="pt-4 border-t border-[#F5F0E8]/5">
+                      <span className="text-[#C9A962] text-xs">Why it matters</span>
+                      <p className="text-[#F5F0E8]/70 text-sm mt-1">{item.whyItMatters}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <p className="text-[#F5F0E8]/40 text-sm">Delivered daily at 7:00 AM via Telegram, Email, or App</p>
@@ -361,7 +388,7 @@ export default function Home() {
                   ].map((item) => (
                     <div key={item.label} className="flex justify-between items-center py-2 border-b border-[#F5F0E8]/5">
                       <span className="text-[#F5F0E8]/40 text-xs">{item.label}</span>
-                      <span className="text-[#F5F0E8] text-sm" dangerouslySetInnerHTML={{ __html: item.value }} />
+                      <span className="text-[#F5F0E8] text-sm">{item.value}</span>
                     </div>
                   ))}
                 </div>
@@ -441,7 +468,7 @@ export default function Home() {
               <p className="text-[#C9A962]">Thank you! You&apos;re on the list. We&apos;ll be in touch soon.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="your@email.com"
@@ -452,11 +479,16 @@ export default function Home() {
               />
               <button
                 type="submit"
-                className="px-8 py-3 bg-[#C9A962] text-[#0A0A0A] font-medium hover:bg-[#A88B4A] transition-colors"
+                disabled={submitting}
+                className="px-8 py-3 bg-[#C9A962] text-[#0A0A0A] font-medium hover:bg-[#A88B4A] transition-colors disabled:opacity-50"
               >
-                Join Waitlist
+                {submitting ? "Subscribing..." : "Join Waitlist"}
               </button>
             </form>
+          )}
+          
+          {error && (
+            <p className="text-red-400 text-sm mt-4">{error}</p>
           )}
 
           <p className="text-[#F5F0E8]/30 text-xs mt-6">

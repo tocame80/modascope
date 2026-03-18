@@ -4,7 +4,7 @@
 
 **Project Status**: ✅ Completed
 
-Built ModaScope - AI-powered fashion news aggregation platform with landing page and free API.
+Built ModaScope - AI-powered fashion news aggregation platform with landing page, free API, and database.
 
 ## Recently Completed
 
@@ -19,9 +19,14 @@ Built ModaScope - AI-powered fashion news aggregation platform with landing page
   - Pricing tiers
   - Early access signup form
 - [x] Add free API endpoints:
-  - `GET /api/news` - Fashion news with filtering (brand, category, limit, offset)
+  - `GET /api/news` - Fashion news with filtering
   - `GET /api/sources` - List of data sources
   - `GET /api/categories` - Available categories
+- [x] Add database (Drizzle + SQLite):
+  - `subscribers` table for email storage
+- [x] Add subscribe API: `POST /api/subscribe`
+- [x] Connect landing page to API (dynamic news loading)
+- [x] Connect signup form to subscribe endpoint
 
 ## API Endpoints
 
@@ -38,14 +43,21 @@ Returns list of monitored fashion sources.
 ### GET /api/categories
 Returns available news categories.
 
-## Design Direction
+### POST /api/subscribe
+Body: `{ email, name?, brandPreferences?, categoryPreferences? }`
+Returns: `{ message: "Successfully subscribed" }` or error
 
-- **Aesthetic**: Editorial luxury, minimalist, sophisticated
-- **Color Palette**: 
-  - Primary: Deep black (#0A0A0A)
-  - Secondary: Warm cream (#F5F0E8)
-  - Accent: Gold/champagne (#C9A962)
-- **Typography**: Playfair Display (serif) for headings, Inter for body
+## Database Schema
+
+### subscribers
+| Column | Type | Description |
+|--------|------|-------------|
+| id | integer | Primary key |
+| email | text | Unique email |
+| name | text | Optional name |
+| brandPreferences | text | JSON string of brands |
+| categoryPreferences | text | JSON string of categories |
+| subscribedAt | timestamp | Auto-generated |
 
 ## Technical Stack
 
@@ -53,6 +65,7 @@ Returns available news categories.
 - TypeScript
 - Tailwind CSS 4
 - React 19
+- Drizzle ORM + SQLite
 - next/image for optimized images
 
 ## Session History
@@ -62,10 +75,11 @@ Returns available news categories.
 | Initial | Project created from Next.js template |
 | +1 | Built ModaScope landing page |
 | +2 | Added free API endpoints |
+| +3 | Added database and subscribe endpoint |
 
 ## Pending Improvements
 
-- [ ] Database for storing users and preferences
 - [ ] Real AI-powered news analysis
 - [ ] Telegram bot integration
 - [ ] Email subscription service
+- [ ] User preferences management
