@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { subscribers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -8,6 +8,8 @@ function generateToken(): string {
 }
 
 export async function POST(request: Request) {
+  const db = await getDb();
+  
   if (!db) {
     return NextResponse.json(
       { error: "Database not configured. Please set DB_URL and DB_TOKEN." },
@@ -19,12 +21,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, name, brandPreferences, categoryPreferences, telegramChatId } = body;
 
-    // Handle Telegram subscription
     if (telegramChatId) {
+      const chatIdStr = String(telegramChatId);
       const existingTelegram = await db
         .select()
         .from(subscribers)
-        .where(eq(subscribers.telegramChatId, telegramChatId))
+        .where(eq(subscribers.telegramChatId, chatIdStr))
         .limit(1);
 
       if (existingTelegram.length > 0) {
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
       const verifyToken = generateToken();
 
       await db.insert(subscribers).values({
-        telegramChatId,
+        telegramChatId: String(telegramChatId),
         name: name || null,
         brandPreferences: brandPreferences ? JSON.stringify(brandPreferences) : null,
         categoryPreferences: categoryPreferences ? JSON.stringify(categoryPreferences) : null,
@@ -59,7 +61,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle email subscription
     if (!email || !email.includes("@")) {
       return NextResponse.json(
         { error: "Valid email is required" },

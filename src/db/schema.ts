@@ -1,13 +1,13 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, serial, text, boolean, timestamp } from "drizzle-orm/pg-core";
 
-export const subscribers = sqliteTable("subscribers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const subscribers = pgTable("subscribers", {
+  id: serial("id").primaryKey(),
   email: text("email").unique(),
-  telegramChatId: integer("telegram_chat_id").unique(),
+  telegramChatId: text("telegram_chat_id").unique(),
   name: text("name"),
   brandPreferences: text("brand_preferences"),
   categoryPreferences: text("category_preferences"),
-  isVerified: integer("is_verified", { mode: "boolean" }).default(false),
+  isVerified: boolean("is_verified").default(false),
   verifyToken: text("verify_token"),
-  subscribedAt: integer("subscribed_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
+  subscribedAt: timestamp("subscribed_at").defaultNow(),
 });
