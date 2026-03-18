@@ -1,6 +1,7 @@
 import { TelegramUpdate, TelegramSendMessageParams, TelegramInlineKeyboardMarkup } from "./telegram";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const API_URL = process.env.NEXT_PUBLIC_URL || "https://modascope-eb47.vercel.app";
 
 async function sendMessage(params: TelegramSendMessageParams): Promise<void> {
   if (!BOT_TOKEN) {
@@ -72,7 +73,7 @@ async function handleCommand(chatId: number, firstName: string | undefined, comm
     case "/start":
       // Subscribe user via API
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/subscribe`, {
+        await fetch(`${API_URL}/api/subscribe`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -160,7 +161,7 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
         const category = data.replace("pref_", "");
         // Save preference
         try {
-          await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/subscribe`, {
+          await fetch(`${API_URL}/api/subscribe`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ telegramChatId: chatId }),
@@ -179,7 +180,7 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
 
 export async function sendDigest(chatId: number): Promise<void> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/news?limit=3`);
+    const res = await fetch(`${API_URL}/api/news?limit=3`);
     const data = await res.json();
     const news = data.data || [];
 

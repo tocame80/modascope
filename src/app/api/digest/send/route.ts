@@ -4,6 +4,7 @@ import { subscribers } from "@/db/schema";
 import { sql } from "drizzle-orm";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const API_URL = process.env.NEXT_PUBLIC_URL || "https://modascope-eb47.vercel.app";
 
 async function sendTelegramMessage(chatId: string | number, text: string): Promise<void> {
   if (!BOT_TOKEN) {
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "No Telegram subscribers found", sent: 0 });
     }
 
-    const newsRes = await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/news?limit=5`);
+    const newsRes = await fetch(`${API_URL}/api/news?limit=5`);
     const newsData = await newsRes.json();
     const news = newsData.data || [];
 

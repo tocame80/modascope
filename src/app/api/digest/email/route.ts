@@ -4,6 +4,8 @@ import { subscribers } from "@/db/schema";
 import { sql, eq } from "drizzle-orm";
 import { getEmailProvider, buildDigestEmailHtml } from "@/lib/email";
 
+const API_URL = process.env.NEXT_PUBLIC_URL || "https://modascope-eb47.vercel.app";
+
 export async function POST(request: Request) {
   const db = await getDb();
   
@@ -21,7 +23,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Subscriber not found" }, { status: 404 });
       }
 
-      const newsRes = await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/news?limit=5`);
+      const newsRes = await fetch(`${API_URL}/api/news?limit=5`);
       const newsData = await newsRes.json();
       const news = newsData.data || [];
       if (news.length === 0) {
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "No email subscribers found", sent: 0 });
     }
 
-    const newsRes = await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/news?limit=5`);
+    const newsRes = await fetch(`${API_URL}/api/news?limit=5`);
     const newsData = await newsRes.json();
     const news = newsData.data || [];
     if (news.length === 0) {
