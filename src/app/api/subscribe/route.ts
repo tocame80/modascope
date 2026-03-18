@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { subscribers } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 function generateToken(): string {
   return crypto.randomUUID();
@@ -10,8 +10,49 @@ function generateToken(): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, name, brandPreferences, categoryPreferences } = body;
+    const { email, name, brandPreferences, categoryPreferences, telegramChatId } = body;
 
+    // Handle Telegram subscription
+    if (telegramChatId) {
+      const existingTelegram = await db
+        .select()
+        .from(subscribers)
+        .where(eq(subscribers.telegramChatId, telegramChatId))
+        .limit(1);
+
+      if (existingTelegram.length > 0) {
+        const row = existingTelegram[0];
+        return NextResponse.json(
+          { 
+            message: "Already subscribed via Telegram",
+            preferencesUrl: row.email 
+              ? `/preferences?email=${encodeURIComponent(row.email)}&token=${row.verifyToken}`
+              : null
+          },
+          { status: 200 }
+        );
+      }
+
+      const verifyToken = generateToken();
+
+      await db.insert(subscribers).values({
+        telegramChatId,
+        name: name || null,
+        brandPreferences: brandPreferences ? JSON.stringify(brandPreferences) : null,
+        categoryPreferences: categoryPreferences ? JSON.stringify(categoryPreferences) : null,
+        verifyToken,
+      });
+
+      return NextResponse.json(
+        { 
+          message: "Successfully subscribed via Telegram",
+          preferencesUrl: `/preferences?telegram=${telegramChatId}&token=${verifyToken}`
+        },
+        { status: 201 }
+      );
+    }
+
+    // Handle email subscription
     if (!email || !email.includes("@")) {
       return NextResponse.json(
         { error: "Valid email is required" },
@@ -19,14 +60,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingSubscriber = await db
+    const existingEmail = await db
       .select()
       .from(subscribers)
       .where(eq(subscribers.email, email))
       .limit(1);
 
-    if (existingSubscriber.length > 0) {
-      const row = existingSubscriber[0];
+    if (existingEmail.length > 0) {
+      const row = existingEmail[0];
       return NextResponse.json(
         { 
           error: "Email already subscribed",

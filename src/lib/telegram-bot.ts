@@ -1,7 +1,5 @@
 import { TelegramUpdate, TelegramSendMessageParams, TelegramInlineKeyboardMarkup } from "./telegram";
 
-const TELEGRAM_API_URL = `https://api.telegram.io/v0`;
-
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 async function sendMessage(params: TelegramSendMessageParams): Promise<void> {
@@ -11,7 +9,7 @@ async function sendMessage(params: TelegramSendMessageParams): Promise<void> {
   }
 
   try {
-    await fetch(`${TELEGRAM_API_URL}/bot${BOT_TOKEN}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
@@ -59,7 +57,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
 
   if (entities && entities[0]?.type === "bot_command") {
     const command = text.split(" ")[0];
-    await handleCommand(chatId, command);
+    await handleCommand(chatId, message.from?.first_name, command);
     return;
   }
 
@@ -69,21 +67,26 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
   });
 }
 
-async function handleCommand(chatId: number, command: string): Promise<void> {
+async function handleCommand(chatId: number, firstName: string | undefined, command: string): Promise<void> {
   switch (command) {
     case "/start":
+      // Subscribe user via API
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/subscribe`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            telegramChatId: chatId,
+            name: firstName || "Telegram User"
+          }),
+        });
+      } catch (e) {
+        console.error("Failed to subscribe:", e);
+      }
+
       await sendMessage({
         chat_id: chatId,
-        text: `👗 *ModaScope* — Your AI Fashion Digest
-
-Stay ahead of fashion trends with personalized daily digests.
-
-*What I can do:*
-• /digest — Get today's top fashion news
-• /preferences — Customize your interests
-• /help — Get help
-
-_Choose your interests to personalize your feed._`,
+        text: `👗 *ModaScope* — Your AI Fashion Digest\n\nWelcome${firstName ? `, ${firstName}` : ""}! You're now subscribed to daily fashion digests.\n\n*What I can do:*\n• /digest — Get today's top fashion news\n• /preferences — Customize your interests\n• /help — Get help`,
         parse_mode: "Markdown",
         reply_markup: getMainKeyboard(),
       });
@@ -96,9 +99,7 @@ _Choose your interests to personalize your feed._`,
     case "/preferences":
       await sendMessage({
         chat_id: chatId,
-        text: `⚙️ *Your Preferences*
-
-Select the categories you're interested in:`,
+        text: `⚙️ *Your Preferences*\n\nSelect the categories you're interested in:`,
         parse_mode: "Markdown",
         reply_markup: getPreferencesKeyboard(),
       });
@@ -107,16 +108,7 @@ Select the categories you're interested in:`,
     case "/help":
       await sendMessage({
         chat_id: chatId,
-        text: `❓ *Help*
-
-*Available Commands:*
-• /start — Welcome message and menu
-• /digest — Get today's fashion news
-• /preferences — Customize your interests
-• /help — Show this help message
-
-*About ModaScope:*
-ModaScope monitors hundreds of fashion sources and delivers personalized daily digests.`,
+        text: `❓ *Help*\n\n*Available Commands:*\n• /start — Welcome message and menu\n• /digest — Get today's fashion news\n• /preferences — Customize your interests\n• /help — Show this help message\n\n*About ModaScope:*\nModaScope monitors hundreds of fashion sources and delivers personalized daily digests.`,
         parse_mode: "Markdown",
         reply_markup: getMainKeyboard(),
       });
@@ -143,9 +135,7 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
     case "preferences":
       await sendMessage({
         chat_id: chatId,
-        text: `⚙️ *Your Preferences*
-
-Select the categories you're interested in:`,
+        text: `⚙️ *Your Preferences*\n\nSelect the categories you're interested in:`,
         parse_mode: "Markdown",
         reply_markup: getPreferencesKeyboard(),
       });
@@ -153,13 +143,7 @@ Select the categories you're interested in:`,
     case "help":
       await sendMessage({
         chat_id: chatId,
-        text: `❓ *Help*
-
-*Available Commands:*
-• /start — Welcome message and menu
-• /digest — Get today's fashion news
-• /preferences — Customize your interests
-• /help — Show this help message`,
+        text: `❓ *Help*\n\n*Available Commands:*\n• /start — Welcome message and menu\n• /digest — Get today's fashion news\n• /preferences — Customize your interests\n• /help — Show this help message`,
         parse_mode: "Markdown",
         reply_markup: getMainKeyboard(),
       });
@@ -174,6 +158,16 @@ Select the categories you're interested in:`,
     default:
       if (data.startsWith("pref_")) {
         const category = data.replace("pref_", "");
+        // Save preference
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/subscribe`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ telegramChatId: chatId }),
+          });
+        } catch (e) {
+          console.error("Failed to update preference:", e);
+        }
         await sendMessage({
           chat_id: chatId,
           text: `✅ Added *${category}* to your preferences!`,
@@ -183,7 +177,7 @@ Select the categories you're interested in:`,
   }
 }
 
-async function sendDigest(chatId: number): Promise<void> {
+export async function sendDigest(chatId: number): Promise<void> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/api/news?limit=3`);
     const data = await res.json();

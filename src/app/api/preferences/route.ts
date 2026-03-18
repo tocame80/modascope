@@ -1,26 +1,42 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { subscribers } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
     const token = searchParams.get("token");
+    const telegram = searchParams.get("telegram");
 
-    if (!email || !token) {
+    if (!token) {
       return NextResponse.json(
-        { error: "Email and token are required" },
+        { error: "Token is required" },
         { status: 400 }
       );
     }
 
-    const subscriber = await db
-      .select()
-      .from(subscribers)
-      .where(eq(subscribers.email, email))
-      .limit(1);
+    let subscriber;
+    if (telegram) {
+      const chatId = parseInt(telegram);
+      subscriber = await db
+        .select()
+        .from(subscribers)
+        .where(eq(subscribers.telegramChatId, chatId))
+        .limit(1);
+    } else if (email) {
+      subscriber = await db
+        .select()
+        .from(subscribers)
+        .where(eq(subscribers.email, email))
+        .limit(1);
+    } else {
+      return NextResponse.json(
+        { error: "Email or telegram is required" },
+        { status: 400 }
+      );
+    }
 
     if (subscriber.length === 0) {
       return NextResponse.json(
@@ -44,6 +60,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       data: {
         email: row.email,
+        telegramChatId: row.telegramChatId,
         name: row.name,
         brandPreferences: brandPrefs,
         categoryPreferences: categoryPrefs,
@@ -62,20 +79,34 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, token, brandPreferences, categoryPreferences, name } = body;
+    const { email, token, telegramChatId, brandPreferences, categoryPreferences, name } = body;
 
-    if (!email || !token) {
+    if (!token) {
       return NextResponse.json(
-        { error: "Email and token are required" },
+        { error: "Token is required" },
         { status: 400 }
       );
     }
 
-    const subscriber = await db
-      .select()
-      .from(subscribers)
-      .where(eq(subscribers.email, email))
-      .limit(1);
+    let subscriber;
+    if (telegramChatId) {
+      subscriber = await db
+        .select()
+        .from(subscribers)
+        .where(eq(subscribers.telegramChatId, telegramChatId))
+        .limit(1);
+    } else if (email) {
+      subscriber = await db
+        .select()
+        .from(subscribers)
+        .where(eq(subscribers.email, email))
+        .limit(1);
+    } else {
+      return NextResponse.json(
+        { error: "Email or telegramChatId is required" },
+        { status: 400 }
+      );
+    }
 
     if (subscriber.length === 0) {
       return NextResponse.json(
@@ -104,11 +135,21 @@ export async function POST(request: Request) {
     if (name !== undefined) {
       updates.name = name;
     }
+    if (email !== undefined) {
+      updates.email = email;
+    }
 
-    await db
-      .update(subscribers)
-      .set(updates)
-      .where(eq(subscribers.email, email));
+    if (telegramChatId) {
+      await db
+        .update(subscribers)
+        .set(updates)
+        .where(eq(subscribers.telegramChatId, telegramChatId));
+    } else if (email) {
+      await db
+        .update(subscribers)
+        .set(updates)
+        .where(eq(subscribers.email, email));
+    }
 
     return NextResponse.json({
       message: "Preferences updated successfully",
