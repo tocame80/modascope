@@ -90,6 +90,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [preferencesUrl, setPreferencesUrl] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -127,8 +128,17 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.preferencesUrl) {
+          setPreferencesUrl(data.preferencesUrl);
+          setSubmitted(true);
+          return;
+        }
         setError(data.error || "Something went wrong");
         return;
+      }
+
+      if (data.preferencesUrl) {
+        setPreferencesUrl(data.preferencesUrl);
       }
 
       setSubmitted(true);
@@ -464,8 +474,16 @@ export default function Home() {
           </p>
 
           {submitted ? (
-            <div className="p-6 bg-[#C9A962]/10 border border-[#C9A962]/30">
+            <div className="p-6 bg-[#C9A962]/10 border border-[#C9A962]/30 space-y-3">
               <p className="text-[#C9A962]">Thank you! You&apos;re on the list. We&apos;ll be in touch soon.</p>
+              {preferencesUrl && (
+                <a
+                  href={preferencesUrl}
+                  className="block text-sm text-[#F5F0E8]/70 hover:text-[#C9A962] underline"
+                >
+                  Customize your preferences →
+                </a>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">

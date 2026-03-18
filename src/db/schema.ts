@@ -6,5 +6,7 @@ export const subscribers = sqliteTable("subscribers", {
   name: text("name"),
   brandPreferences: text("brand_preferences"),
   categoryPreferences: text("category_preferences"),
+  isVerified: integer("is_verified", { mode: "boolean" }).default(false),
+  verifyToken: text("verify_token"),
   subscribedAt: integer("subscribed_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
 });

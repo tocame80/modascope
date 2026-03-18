@@ -4,12 +4,11 @@
 
 **Project Status**: ✅ Completed
 
-Built ModaScope - AI-powered fashion news aggregation platform with landing page, free API, and database.
+Built ModaScope - AI-powered fashion news aggregation platform with landing page, free API, database, and user preferences.
 
 ## Recently Completed
 
 - [x] Set up Next.js 16 project with TypeScript and Tailwind CSS 4
-- [x] Update memory bank with ModaScope project scope
 - [x] Create landing page with sections:
   - Hero with tagline and CTA
   - How it works (4-step process)
@@ -24,7 +23,9 @@ Built ModaScope - AI-powered fashion news aggregation platform with landing page
   - `GET /api/categories` - Available categories
 - [x] Add database (Drizzle + SQLite):
   - `subscribers` table for email storage
-- [x] Add subscribe API: `POST /api/subscribe`
+- [x] Add subscribe API: `POST /api/subscribe` - returns token + preferences URL
+- [x] Add preferences API: `GET/POST /api/preferences` - manage user preferences
+- [x] Add preferences page: `/preferences` - UI for customizing brands & categories
 - [x] Connect landing page to API (dynamic news loading)
 - [x] Connect signup form to subscribe endpoint
 
@@ -45,7 +46,15 @@ Returns available news categories.
 
 ### POST /api/subscribe
 Body: `{ email, name?, brandPreferences?, categoryPreferences? }`
-Returns: `{ message: "Successfully subscribed" }` or error
+Returns: `{ message: "Successfully subscribed", token, preferencesUrl }`
+
+### GET /api/preferences
+Query params: `email`, `token`
+Returns user preferences
+
+### POST /api/preferences
+Body: `{ email, token, name?, brandPreferences?, categoryPreferences? }`
+Updates user preferences
 
 ## Database Schema
 
@@ -55,8 +64,10 @@ Returns: `{ message: "Successfully subscribed" }` or error
 | id | integer | Primary key |
 | email | text | Unique email |
 | name | text | Optional name |
-| brandPreferences | text | JSON string of brands |
-| categoryPreferences | text | JSON string of categories |
+| brandPreferences | text | JSON array of brands |
+| categoryPreferences | text | JSON array of categories |
+| isVerified | boolean | Verification status |
+| verifyToken | text | Token for managing preferences |
 | subscribedAt | timestamp | Auto-generated |
 
 ## Technical Stack
@@ -76,10 +87,10 @@ Returns: `{ message: "Successfully subscribed" }` or error
 | +1 | Built ModaScope landing page |
 | +2 | Added free API endpoints |
 | +3 | Added database and subscribe endpoint |
+| +4 | Added preferences page and API |
 
 ## Pending Improvements
 
 - [ ] Real AI-powered news analysis
 - [ ] Telegram bot integration
 - [ ] Email subscription service
-- [ ] User preferences management
