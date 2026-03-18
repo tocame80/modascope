@@ -4,7 +4,7 @@
 
 **Project Status**: ✅ Completed
 
-Built ModaScope - AI-powered fashion news aggregation platform with landing page, free API, database, and user preferences.
+Built ModaScope - AI-powered fashion news aggregation platform with landing page, free API, database, user preferences, and Telegram bot.
 
 ## Recently Completed
 
@@ -22,12 +22,12 @@ Built ModaScope - AI-powered fashion news aggregation platform with landing page
   - `GET /api/sources` - List of data sources
   - `GET /api/categories` - Available categories
 - [x] Add database (Drizzle + SQLite):
-  - `subscribers` table for email storage
-- [x] Add subscribe API: `POST /api/subscribe` - returns token + preferences URL
+  - `subscribers` table for email and Telegram storage
+- [x] Add subscribe API: `POST /api/subscribe` - supports email and Telegram
 - [x] Add preferences API: `GET/POST /api/preferences` - manage user preferences
 - [x] Add preferences page: `/preferences` - UI for customizing brands & categories
-- [x] Connect landing page to API (dynamic news loading)
-- [x] Connect signup form to subscribe endpoint
+- [x] Add Telegram bot with commands: /start, /digest, /preferences, /help
+- [x] Add digest sending API: `POST /api/digest/send` - sends digest to all Telegram subscribers
 
 ## API Endpoints
 
@@ -45,16 +45,17 @@ Returns list of monitored fashion sources.
 Returns available news categories.
 
 ### POST /api/subscribe
-Body: `{ email, name?, brandPreferences?, categoryPreferences? }`
-Returns: `{ message: "Successfully subscribed", token, preferencesUrl }`
+Body: `{ email?, telegramChatId?, name?, brandPreferences?, categoryPreferences? }`
+Returns: `{ message, token, preferencesUrl }`
 
 ### GET /api/preferences
-Query params: `email`, `token`
-Returns user preferences
+Query params: `email` or `telegram`, `token`
 
 ### POST /api/preferences
-Body: `{ email, token, name?, brandPreferences?, categoryPreferences? }`
-Updates user preferences
+Body: `{ email?, telegramChatId?, token, name?, brandPreferences?, categoryPreferences? }`
+
+### POST /api/digest/send
+Sends digest to all Telegram subscribers (requires TELEGRAM_BOT_TOKEN)
 
 ## Database Schema
 
@@ -62,13 +63,21 @@ Updates user preferences
 | Column | Type | Description |
 |--------|------|-------------|
 | id | integer | Primary key |
-| email | text | Unique email |
-| name | text | Optional name |
+| email | text | Unique email (nullable) |
+| telegramChatId | integer | Unique Telegram chat ID |
+| name | text | User name |
 | brandPreferences | text | JSON array of brands |
 | categoryPreferences | text | JSON array of categories |
 | isVerified | boolean | Verification status |
 | verifyToken | text | Token for managing preferences |
 | subscribedAt | timestamp | Auto-generated |
+
+## Telegram Bot
+
+- Bot: @ModaScope_bot
+- Commands: /start, /digest, /preferences, /help
+- Inline buttons for navigation
+- Subscribes users via /start command
 
 ## Technical Stack
 
@@ -88,9 +97,10 @@ Updates user preferences
 | +2 | Added free API endpoints |
 | +3 | Added database and subscribe endpoint |
 | +4 | Added preferences page and API |
+| +5 | Added Telegram bot |
 
 ## Pending Improvements
 
 - [ ] Real AI-powered news analysis
-- [ ] Telegram bot integration
-- [ ] Email subscription service
+- [ ] Email subscription/digest service
+- [ ] Deploy to production with public URL
