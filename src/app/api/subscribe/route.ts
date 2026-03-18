@@ -11,8 +11,9 @@ export async function POST(request: Request) {
   const db = await getDb();
   
   if (!db) {
+    console.log("Database not configured - DATABASE_URL missing");
     return NextResponse.json(
-      { error: "Database not configured. Set DATABASE_URL in Vercel." },
+      { error: "Database not configured. Set DATABASE_URL in Vercel env vars." },
       { status: 503 }
     );
   }
