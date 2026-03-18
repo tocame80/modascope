@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   
   if (!db) {
     return NextResponse.json(
-      { error: "Database not configured. Please set DATABASE_URL." },
+      { error: "Database not configured. Set DATABASE_URL in Vercel." },
       { status: 503 }
     );
   }
