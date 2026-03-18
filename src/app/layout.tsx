@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ModaScope | AI Fashion Digest v2",
+  title: "ModaScope v3 - AI Fashion Digest",
   description: "Your daily AI-powered fashion news digest. Stay ahead of trends with curated insights from hundreds of fashion sources.",
 };
 
