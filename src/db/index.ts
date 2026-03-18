@@ -8,10 +8,12 @@ let dbInitialized = false;
 async function getDb() {
   if (dbInitialized) return db;
   
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = process.env.DATABASE_URL || process.env.DB_URL || process.env.POSTGRES_URL;
+  console.log("DATABASE_URL present:", !!connectionString);
+  console.log("DATABASE_URL starts with:", connectionString?.substring(0, 30));
   
   if (!connectionString) {
-    console.warn("DATABASE_URL not configured");
+    console.warn("DATABASE_URL not configured - env vars:", Object.keys(process.env).filter(k => k.includes('DB') || k.includes('POSTGRES')));
     dbInitialized = true;
     return null;
   }
