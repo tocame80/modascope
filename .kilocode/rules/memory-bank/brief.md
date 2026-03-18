@@ -1,48 +1,51 @@
-# Project Brief: Next.js Starter Template
+# Project Brief: ModaScope - AI Fashion Digest
 
 ## Purpose
 
-This is a minimal Next.js starter template designed for AI-assisted development. It provides a clean foundation that can be extended to build any type of web application through interaction with an AI assistant.
+ModaScope is an AI-powered fashion news aggregation platform that monitors hundreds of fashion industry sources and delivers personalized daily digests to users. Think of it as a "smart filter" for the rapidly changing fashion industry.
 
 ## Target Users
 
-- Developers wanting a clean Next.js starting point
-- Users building applications through AI-assisted coding
-- Teams needing a standardized, modern Next.js setup
+- Fashion enthusiasts who want to stay updated without spending hours browsing
+- Industry professionals (buyers, designers, stylists) who need to track trends and competitors
+- Content creators and journalists covering fashion
+- Retail professionals monitoring market trends
 
 ## Core Use Case
 
-Users describe what they want to build to an AI assistant, which then expands this template by:
-
-1. Adding components and pages as needed
-2. Installing additional dependencies
-3. Setting up databases, authentication, etc. using recipes
-4. Customizing styling and branding
+Users receive a curated morning digest (via Telegram, app, or email) containing:
+- AI-generated summaries of top fashion news
+- Key visuals from collections/shows
+- "Why it matters" insights
+- Links to original sources
+- Personalized by brand, category, and tone preferences
 
 ## Key Requirements
 
 ### Must Have
 
-- Modern Next.js 16 setup with App Router
-- TypeScript for type safety
-- Tailwind CSS 4 for styling
-- ESLint for code quality
-- Clean, minimal starting structure
-- Bun as package manager
+- Landing page showcasing the service concept
+- Modern, luxury aesthetic fitting fashion industry
+- Mobile-responsive design
+- Next.js 16 + TypeScript + Tailwind CSS 4
+- Clear value proposition and features
+- Call-to-action for early access/signup
 
 ### Nice to Have
 
-- Recipe system for common additions (database, auth)
-- Memory bank for AI context persistence
-- Clear development guidelines
+- Demo digest preview
+- Interactive brand/category selector
+- Telegram bot preview
+- Pricing section
 
 ## Success Metrics
 
-- Clean, zero-error TypeScript setup
-- Passing lint and type checks
+- Compelling landing page that communicates the value
+- Elegant design matching luxury fashion branding
+- Clear signupCTA
 
 ## Constraints
 
-- Minimal dependencies by default
 - Framework: Next.js 16 + React 19 + Tailwind CSS 4
 - Package manager: Bun
+- Design: Minimalist luxury, sophisticated, editorial

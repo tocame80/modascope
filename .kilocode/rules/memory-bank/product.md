@@ -1,44 +1,37 @@
-# Product Context: Next.js Starter Template
+# Product Context: ModaScope
 
-## Why This Template Exists
+## Why This Product Exists
 
-Starting a new Next.js project involves boilerplate setup, configuration decisions, and establishing patterns. This template provides a clean, opinionated starting point that eliminates setup friction and establishes best practices from the start. It's optimized for AI-assisted development, where an AI can quickly extend the template based on user requirements.
+The fashion industry changes every second - new collections drop, designers change, trends emerge and fade within days. Professionals and enthusiasts spend hours daily scanning dozens of websites, Instagram accounts, and publications just to stay informed. ModaScope solves this information overload problem by using AI to aggregate, analyze, and personalize fashion news into a concise daily digest.
 
 ## Problems It Solves
 
-1. **Setup Time**: Eliminates boilerplate configuration (TypeScript, Tailwind, ESLint)
-2. **Decision Fatigue**: Pre-made choices for tooling and patterns
-3. **AI Context**: Memory bank provides persistent context for AI assistants
-4. **Extensibility**: Recipe system for adding common features
-5. **Consistency**: Standardized project structure and conventions
+1. **Information Overload**: Users no longer need to visit 40+ sites daily
+2. **Time Savings**: 2-minute digest instead of 40 minutes of browsing
+3. **Personalization**: Only see news that matters to specific brands/categories
+4. **Trend Detection**: AI clusters similar news and identifies emerging patterns
+5. **Visual Trends**: Computer vision extracts key colors, textures, and silhouettes
 
-## How It Should Work (User Flow)
+## How It Works
 
-1. User starts with this template
-2. User describes what they want to build to AI assistant
-3. AI adds pages, components, and features as needed
-4. AI uses recipes for common additions (database, auth)
-5. User previews changes via hot reload
-6. Iterate until satisfied
-7. Deploy
+1. **Collection**: Scrape fashion sites, brand websites, magazines, retailers, social media
+2. **Analysis**: NLP extracts key info, clusters similar stories, identifies importance
+3. **Personalization**: User preferences filter content by brand, category, tone
+4. **Delivery**: Morning digest via Telegram, app, or email with:
+   - AI-written summaries (3-5 sentences)
+   - Key visual from source
+   - "Why it matters" insight
+   - Direct links to originals
 
-## Key User Experience Goals
+## User Experience Goals
 
-- **Zero to Feature Fast**: Get building immediately, no setup required
-- **AI-Friendly**: Memory bank and recipes make AI assistance effective
-- **Flexible Foundation**: Can become any type of application
-- **Best Practices Built-In**: TypeScript strict mode, ESLint, clean structure
+- **Effortless**: Wake up to ready digest, 2-minute read
+- **Personalized**: Only see what matters to you
+- **Authoritative**: AI "journalist" voice, not just links
+- **Visual**: Key imagery preserved, trend analysis included
 
-## What This Template Provides
+## Monetization
 
-1. **Clean App Structure**: Single page ready for expansion
-2. **Type Safety**: Full TypeScript setup with strict mode
-3. **Modern Styling**: Tailwind CSS 4 ready to use
-4. **Code Quality**: ESLint configured
-5. **Extensibility**: Recipe system for common features
-
-## Integration Points
-
-- **Database**: Use add-database recipe for Drizzle + SQLite
-- **Styling**: Tailwind CSS pre-configured
-- **AI Assistance**: Memory bank for context persistence
+1. **Freemium**: Free daily top-5 digest, paid for full access/archive
+2. **Brand Monitoring**: Professional plans for tracking competitors
+3. **Affiliate**: Links to retailers when new collections drop
