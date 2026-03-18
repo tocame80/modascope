@@ -5,6 +5,10 @@ import { sql, eq } from "drizzle-orm";
 import { getEmailProvider, buildDigestEmailHtml } from "@/lib/email";
 
 export async function POST(request: Request) {
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
   try {
     const body = await request.json();
     const { email } = body;

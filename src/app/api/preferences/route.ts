@@ -4,6 +4,10 @@ import { subscribers } from "@/db/schema";
 import { eq, or } from "drizzle-orm";
 
 export async function GET(request: Request) {
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
@@ -77,6 +81,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
   try {
     const body = await request.json();
     const { email, token, telegramChatId, brandPreferences, categoryPreferences, name } = body;

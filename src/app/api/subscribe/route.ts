@@ -1,13 +1,20 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { subscribers } from "@/db/schema";
-import { eq, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 function generateToken(): string {
   return crypto.randomUUID();
 }
 
 export async function POST(request: Request) {
+  if (!db) {
+    return NextResponse.json(
+      { error: "Database not configured. Please set DB_URL and DB_TOKEN." },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { email, name, brandPreferences, categoryPreferences, telegramChatId } = body;

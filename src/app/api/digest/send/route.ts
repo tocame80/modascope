@@ -27,6 +27,10 @@ async function sendTelegramMessage(chatId: number, text: string): Promise<void> 
 }
 
 export async function POST(request: Request) {
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
   try {
     // Get all Telegram subscribers
     const telegramSubscribers = await db
