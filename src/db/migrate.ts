@@ -5,5 +5,5 @@ if (!db) {
   console.log("Database not available, skipping migrations");
 } else {
   const { runMigrations } = await import("@kilocode/app-builder-db");
-  await runMigrations(db, {}, { migrationsFolder: "./src/db/migrations" });
+  await runMigrations(db as any, {}, { migrationsFolder: "./src/db/migrations" });
 }

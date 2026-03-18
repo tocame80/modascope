@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     let sent = 0;
     for (const subscriber of telegramSubscribers) {
       if (subscriber.telegramChatId) {
-        await sendTelegramMessage(subscriber.telegramChatId, digest);
+        await sendTelegramMessage(Number(subscriber.telegramChatId), digest);
         sent++;
       }
     }
