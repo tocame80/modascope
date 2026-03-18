@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   
   if (!db) {
     return NextResponse.json(
-      { error: "Database not configured. Please set DB_URL and DB_TOKEN." },
+      { error: "Database not configured. Please set DATABASE_URL." },
       { status: 503 }
     );
   }
