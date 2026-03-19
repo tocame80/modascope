@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
-import { translateNews } from "@/lib/translation";
 
 const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
+
+async function translateNews(news: any[], targetLang: string) {
+  if (targetLang === "en" || !news?.length) return news;
+  try {
+    const { translateNews: tn } = await import("@/lib/translation");
+    return await tn(news, targetLang);
+  } catch (e) {
+    console.error("Translation failed:", e);
+    return news;
+  }
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

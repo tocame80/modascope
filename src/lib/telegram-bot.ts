@@ -1,5 +1,4 @@
 import { TelegramUpdate, TelegramSendMessageParams, TelegramInlineKeyboardMarkup } from "./telegram";
-import { translateNews } from "./translation";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const API_URL = process.env.NEXT_PUBLIC_URL || "https://modascope-eb47.vercel.app";
