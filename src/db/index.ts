@@ -22,8 +22,9 @@ async function getDb() {
     const sql = neon(connectionString);
     db = drizzle(sql, { schema });
     dbInitialized = true;
+    console.log("Database initialized successfully");
   } catch (error) {
-    console.warn("Database not available:", error);
+    console.error("Database initialization error:", error);
     dbInitialized = true;
   }
   
