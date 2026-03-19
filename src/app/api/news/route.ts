@@ -18,7 +18,9 @@ export async function GET(request: Request) {
     if (brand) filteredNews = filteredNews.filter((n) => n.brand.toLowerCase() === brand.toLowerCase());
     if (category) filteredNews = filteredNews.filter((n) => n.category.toLowerCase() === category.toLowerCase());
     let paginatedNews = filteredNews.slice(offset, offset + limit);
-    if (lang === "ru") paginatedNews = await translateNews(paginatedNews, "ru");
+    if (lang === "ru") {
+      try { paginatedNews = await translateNews(paginatedNews, "ru"); } catch (e) { console.error("Translation error:", e); }
+    }
     return NextResponse.json({ data: paginatedNews, meta: { total: filteredNews.length, limit, offset, hasMore: offset + limit < filteredNews.length }, source: "local" });
   }
 
@@ -36,7 +38,9 @@ export async function GET(request: Request) {
       console.log("No articles from GNews, using fallback");
       const { news } = await import("../data");
       let fallbackNews = news.slice(0, limit);
-      if (lang === "ru") fallbackNews = await translateNews(fallbackNews, "ru");
+      if (lang === "ru") {
+        try { fallbackNews = await translateNews(fallbackNews, "ru"); } catch (e) { console.error("Translation error:", e); }
+      }
       return NextResponse.json({ data: fallbackNews, meta: { total: news.length, limit, offset: 0, hasMore: false }, source: "fallback" });
     }
     
@@ -55,7 +59,7 @@ export async function GET(request: Request) {
 
     // Translate if needed
     if (lang === "ru") {
-      articles = await translateNews(articles, "ru");
+      try { articles = await translateNews(articles, "ru"); } catch (e) { console.error("Translation error:", e); }
     }
 
     const paginatedNews = articles.slice(offset, offset + limit);
@@ -73,8 +77,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("GNews API error:", error);
     const { news } = await import("../data");
-    let fallbackNews = news.slice(0, limit);
-    if (lang === "ru") fallbackNews = await translateNews(fallbackNews, "ru");
+    const fallbackNews = news.slice(0, limit);
     return NextResponse.json({ data: fallbackNews, meta: { total: news.length, limit, offset: 0, hasMore: false }, source: "fallback" });
   }
 }
