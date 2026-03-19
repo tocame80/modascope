@@ -241,7 +241,7 @@ export default function Home() {
               onClick={() => setLang(lang === "en" ? "ru" : "en")}
               className="px-3 py-1.5 text-sm border border-[#C9A962]/50 text-[#C9A962] hover:bg-[#C9A962]/10 transition-colors"
             >
-              {lang === "en" ? "RU 🇷🇺" : "EN 🇺🇸"}
+              {lang === "en" ? "🇺🇸 EN" : "🇷🇺 RU"}
             </button>
             <a
               href="#early-access"
