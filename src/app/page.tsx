@@ -168,7 +168,7 @@ export default function Home() {
     async function fetchData() {
       try {
         const [newsRes, sourcesRes] = await Promise.all([
-          fetch("/api/news?limit=3"),
+          fetch(`/api/news?limit=3&lang=${lang}`),
           fetch("/api/sources"),
         ]);
         const newsData = await newsRes.json();
@@ -182,7 +182,7 @@ export default function Home() {
       }
     }
     fetchData();
-  }, []);
+  }, [lang]);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { translateNews } from "@/lib/translation";
 
 const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 
@@ -7,6 +8,7 @@ export async function GET(request: Request) {
   
   const brand = searchParams.get("brand");
   const category = searchParams.get("category");
+  const lang = searchParams.get("lang") || "en";
   const limit = parseInt(searchParams.get("limit") || "10");
   const offset = parseInt(searchParams.get("offset") || "0");
 
@@ -15,14 +17,15 @@ export async function GET(request: Request) {
     let filteredNews = [...news];
     if (brand) filteredNews = filteredNews.filter((n) => n.brand.toLowerCase() === brand.toLowerCase());
     if (category) filteredNews = filteredNews.filter((n) => n.category.toLowerCase() === category.toLowerCase());
-    const paginatedNews = filteredNews.slice(offset, offset + limit);
+    let paginatedNews = filteredNews.slice(offset, offset + limit);
+    if (lang === "ru") paginatedNews = await translateNews(paginatedNews, "ru");
     return NextResponse.json({ data: paginatedNews, meta: { total: filteredNews.length, limit, offset, hasMore: offset + limit < filteredNews.length }, source: "local" });
   }
 
   try {
-    const query = brand || category || "fashion OR luxury OR runway";
+    const query = brand || category || "fashion week runway luxury clothing designer brand";
     const response = await fetch(
-      `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=${limit}&apikey=${GNEWS_API_KEY}`
+      `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=30&apikey=${GNEWS_API_KEY}`
     );
     
     if (!response.ok) {
@@ -31,7 +34,7 @@ export async function GET(request: Request) {
     
     const gnewsData = await response.json();
     
-    const articles = (gnewsData.articles || []).map((article: any, index: number) => ({
+    let articles = (gnewsData.articles || []).map((article: any, index: number) => ({
       id: String(index + 1),
       title: article.title,
       summary: article.description?.slice(0, 200) || "",
@@ -44,19 +47,28 @@ export async function GET(request: Request) {
       whyItMatters: "Latest fashion industry news from verified sources.",
     }));
 
+    // Translate if needed
+    if (lang === "ru") {
+      articles = await translateNews(articles, "ru");
+    }
+
+    const paginatedNews = articles.slice(offset, offset + limit);
+
     return NextResponse.json({
-      data: articles,
+      data: paginatedNews,
       meta: {
-        total: gnewsData.totalArticles || articles.length,
+        total: articles.length,
         limit,
         offset,
-        hasMore: articles.length === limit,
+        hasMore: offset + limit < articles.length,
       },
       source: "gnews",
     });
   } catch (error) {
     console.error("GNews API error:", error);
     const { news } = await import("../data");
-    return NextResponse.json({ data: news.slice(0, limit), meta: { total: news.length, limit, offset: 0, hasMore: false }, source: "fallback" });
+    let fallbackNews = news.slice(0, limit);
+    if (lang === "ru") fallbackNews = await translateNews(fallbackNews, "ru");
+    return NextResponse.json({ data: fallbackNews, meta: { total: news.length, limit, offset: 0, hasMore: false }, source: "fallback" });
   }
 }
