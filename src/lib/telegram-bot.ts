@@ -232,7 +232,7 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
 
 export async function sendDigest(chatId: number, lang: string = "en"): Promise<void> {
   try {
-    const res = await fetch(`${API_URL}/api/news?limit=3`);
+    const res = await fetch(`${API_URL}/api/news?limit=3&lang=${lang}`);
     const data = await res.json();
     let news = data.data || [];
 
@@ -242,11 +242,6 @@ export async function sendDigest(chatId: number, lang: string = "en"): Promise<v
         text: lang === "ru" ? "Новостей пока нет. Попробуйте позже!" : "No news available at the moment. Check back later!",
       });
       return;
-    }
-
-    // Translate news if Russian
-    if (lang === "ru") {
-      news = await translateNews(news, "ru");
     }
 
     const title = lang === "ru" ? "📰 Ежедневный дайджест моды" : "📰 *Today's Fashion Digest*";
