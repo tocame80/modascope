@@ -33,17 +33,14 @@ export async function GET(request: Request) {
   }
 
   try {
-    const query = brand || category || "fashion week runway luxury clothing designer brand";
+    const query = brand || category || "fashion";
     const response = await fetch(
       `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=30&apikey=${GNEWS_API_KEY}`
     );
     
-    if (!response.ok) {
-      throw new Error(`GNews API error: ${response.status}`);
-    }
-    
+    console.log("GNews response status:", response.status);
     const gnewsData = await response.json();
-    console.log("GNews response:", JSON.stringify(gnewsData).substring(0, 500));
+    console.log("GNews articles count:", gnewsData.articles?.length || 0);
     
     if (!gnewsData.articles || gnewsData.articles.length === 0) {
       console.log("No articles from GNews, using fallback");
