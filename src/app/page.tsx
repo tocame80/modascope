@@ -158,6 +158,12 @@ export default function Home() {
 
   const t = content[lang];
 
+  const tiers = [
+    { name: t.free, price: "$0", period: t.forever, description: t.dailyDigest, features: t.dailyDigestFeatures, cta: t.getStarted, featured: false },
+    { name: t.pro, price: "$12", period: t.perMonth, description: t.proDescription, features: t.proFeatures, cta: t.startTrial, featured: true },
+    { name: t.professional, price: "$49", period: t.perMonth, description: t.professionalDescription, features: t.professionalFeatures, cta: t.contactSales, featured: false },
+  ];
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -235,7 +241,7 @@ export default function Home() {
               onClick={() => setLang(lang === "en" ? "ru" : "en")}
               className="px-3 py-1.5 text-sm border border-[#C9A962]/50 text-[#C9A962] hover:bg-[#C9A962]/10 transition-colors"
             >
-              {lang === "en" ? "🇷🇺 RU" : "🇬🇧 EN"}
+              {lang === "en" ? "RU 🇷🇺" : "EN 🇺🇸"}
             </button>
             <a
               href="#early-access"
@@ -482,14 +488,14 @@ export default function Home() {
       <section id="pricing" className="py-32">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">Pricing</span>
+            <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">{t.pricingTitle}</span>
             <h2 className="font-serif text-4xl md:text-5xl text-[#F5F0E8] mt-4">
-              Invest in Your Edge
+              {lang === "ru" ? "Инвестируйте в своё преимущество" : "Invest in Your Edge"}
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {pricingTiers.map((tier) => (
+            {tiers.map((tier) => (
               <div
                 key={tier.name}
                 className={`relative p-8 ${
