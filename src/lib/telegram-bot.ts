@@ -20,12 +20,26 @@ async function sendMessage(params: TelegramSendMessageParams): Promise<void> {
   }
 }
 
-function getMainKeyboard(): TelegramInlineKeyboardMarkup {
+function getMainKeyboard(lang: string = "en"): TelegramInlineKeyboardMarkup {
+  const labels = lang === "ru" 
+    ? { digest: "📰 Дайджест", prefs: "⚙️ Настройки", help: "❓ Помощь", lang: "🌐 Язык" }
+    : { digest: "📰 Today's Digest", prefs: "⚙️ Preferences", help: "❓ Help", lang: "🌐 Language" };
+  
   return {
     inline_keyboard: [
-      [{ text: "📰 Today's Digest", callback_data: "digest" }],
-      [{ text: "⚙️ Preferences", callback_data: "preferences" }],
-      [{ text: "❓ Help", callback_data: "help" }],
+      [{ text: labels.digest, callback_data: `digest_${lang}` }],
+      [{ text: labels.prefs, callback_data: "preferences" }],
+      [{ text: labels.help, callback_data: "help" }],
+      [{ text: labels.lang, callback_data: "language" }],
+    ],
+  };
+}
+
+function getLanguageKeyboard(): TelegramInlineKeyboardMarkup {
+  return {
+    inline_keyboard: [
+      [{ text: "🇬🇧 English", callback_data: "lang_en" }],
+      [{ text: "🇷🇺 Русский", callback_data: "lang_ru" }],
     ],
   };
 }
@@ -46,7 +60,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
   const callbackQuery = update.callback_query;
 
   if (callbackQuery) {
-    await handleCallbackQuery(callbackQuery);
+    await handleCallbackQuery(callbackQuery, "en");
     return;
   }
 
@@ -55,52 +69,58 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
   const chatId = message.chat.id;
   const text = message.text.toLowerCase();
   const entities = message.entities;
+  const lang = message.from?.language_code?.startsWith("ru") ? "ru" : "en";
 
   if (entities && entities[0]?.type === "bot_command") {
     const command = text.split(" ")[0];
-    await handleCommand(chatId, message.from?.first_name, command);
+    await handleCommand(chatId, message.from?.first_name, command, lang);
     return;
   }
 
   await sendMessage({
     chat_id: chatId,
-    text: `Welcome to ModaScope! 👋\n\nUse /start to begin, /digest to get today's news, or /help for assistance.`,
+    text: lang === "ru" 
+      ? "Добро пожаловать в ModaScope! 👋\n\nИспользуйте /start для начала, /digest для новостей, /help для справки."
+      : "Welcome to ModaScope! 👋\n\nUse /start to begin, /digest to get today's news, or /help for assistance.",
   });
 }
 
-async function handleCommand(chatId: number, firstName: string | undefined, command: string): Promise<void> {
+async function handleCommand(chatId: number, firstName: string | undefined, command: string, lang: string = "en"): Promise<void> {
   switch (command) {
     case "/start":
-      // Subscribe user via API
       try {
         await fetch(`${API_URL}/api/subscribe`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             telegramChatId: chatId,
-            name: firstName || "Telegram User"
+            name: firstName || (lang === "ru" ? "Пользователь Telegram" : "Telegram User")
           }),
         });
       } catch (e) {
         console.error("Failed to subscribe:", e);
       }
 
+      const welcomeMsg = lang === "ru"
+        ? `👗 *ModaScope* — AI Дайджест моды\n\nДобро пожаловать${firstName ? `, ${firstName}` : ""}! Вы подписались на ежедневные дайджесты моды.\n\n*Что я умею:*\n• /digest — Получить новости\n• /preferences — Настроить интересы\n• /help — Помощь`
+        : `👗 *ModaScope* — Your AI Fashion Digest\n\nWelcome${firstName ? `, ${firstName}` : ""}! You're now subscribed to daily fashion digests.\n\n*What I can do:*\n• /digest — Get today's top fashion news\n• /preferences — Customize your interests\n• /help — Get help`;
+
       await sendMessage({
         chat_id: chatId,
-        text: `👗 *ModaScope* — Your AI Fashion Digest\n\nWelcome${firstName ? `, ${firstName}` : ""}! You're now subscribed to daily fashion digests.\n\n*What I can do:*\n• /digest — Get today's top fashion news\n• /preferences — Customize your interests\n• /help — Get help`,
+        text: welcomeMsg,
         parse_mode: "Markdown",
-        reply_markup: getMainKeyboard(),
+        reply_markup: getMainKeyboard(lang),
       });
       break;
 
     case "/digest":
-      await sendDigest(chatId);
+      await sendDigest(chatId, lang);
       break;
 
     case "/preferences":
       await sendMessage({
         chat_id: chatId,
-        text: `⚙️ *Your Preferences*\n\nSelect the categories you're interested in:`,
+        text: lang === "ru" ? "⚙️ *Ваши предпочтения*\n\nВыберите категории:" : "⚙️ *Your Preferences*\n\nSelect the categories you're interested in:",
         parse_mode: "Markdown",
         reply_markup: getPreferencesKeyboard(),
       });
@@ -109,34 +129,60 @@ async function handleCommand(chatId: number, firstName: string | undefined, comm
     case "/help":
       await sendMessage({
         chat_id: chatId,
-        text: `❓ *Help*\n\n*Available Commands:*\n• /start — Welcome message and menu\n• /digest — Get today's fashion news\n• /preferences — Customize your interests\n• /help — Show this help message\n\n*About ModaScope:*\nModaScope monitors hundreds of fashion sources and delivers personalized daily digests.`,
+        text: lang === "ru"
+          ? "❓ *Помощь*\n\n*Команды:*\n• /start — Приветствие\n• /digest — Новости\n• /preferences — Интересы\n• /help — Помощь\n\n*О ModaScope:*\nModaScope отслеживает сотни источников моды и доставляет персональные дайджесты."
+          : "❓ *Help*\n\n*Available Commands:*\n• /start — Welcome message and menu\n• /digest — Get today's fashion news\n• /preferences — Customize your interests\n• /help — Show this help message\n\n*About ModaScope:*\nModaScope monitors hundreds of fashion sources and delivers personalized daily digests.",
         parse_mode: "Markdown",
-        reply_markup: getMainKeyboard(),
+        reply_markup: getMainKeyboard(lang),
       });
       break;
 
     default:
       await sendMessage({
         chat_id: chatId,
-        text: `Unknown command. Use /help for available commands.`,
+        text: lang === "ru" ? "Неизвестная команда. Используйте /help." : "Unknown command. Use /help for available commands.",
       });
   }
 }
 
-async function handleCallbackQuery(callbackQuery: { id: string; data?: string; message?: { chat: { id: number } } }): Promise<void> {
+async function handleCallbackQuery(callbackQuery: { id: string; data?: string; message?: { chat: { id: number } } }, userLang: string = "en"): Promise<void> {
   const chatId = callbackQuery.message?.chat.id;
   if (!chatId || !callbackQuery.data) return;
 
   const data = callbackQuery.data;
+  let lang = userLang;
+
+  if (data.startsWith("digest_")) {
+    lang = data.replace("digest_", "");
+    await sendDigest(chatId, lang);
+    return;
+  }
+
+  if (data.startsWith("lang_")) {
+    lang = data.replace("lang_", "");
+    await sendMessage({
+      chat_id: chatId,
+      text: lang === "ru" ? "✅ Язык изменён на русский!" : "✅ Language changed to English!",
+      reply_markup: getMainKeyboard(lang),
+    });
+    return;
+  }
 
   switch (data) {
     case "digest":
-      await sendDigest(chatId);
+      await sendDigest(chatId, lang);
+      break;
+    case "language":
+      await sendMessage({
+        chat_id: chatId,
+        text: lang === "ru" ? "🌐 Выберите язык:" : "🌐 Select language:",
+        reply_markup: getLanguageKeyboard(),
+      });
       break;
     case "preferences":
       await sendMessage({
         chat_id: chatId,
-        text: `⚙️ *Your Preferences*\n\nSelect the categories you're interested in:`,
+        text: lang === "ru" ? "⚙️ *Ваши предпочтения*\n\nВыберите категории:" : "⚙️ *Your Preferences*\n\nSelect the categories you're interested in:",
         parse_mode: "Markdown",
         reply_markup: getPreferencesKeyboard(),
       });
@@ -144,22 +190,23 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
     case "help":
       await sendMessage({
         chat_id: chatId,
-        text: `❓ *Help*\n\n*Available Commands:*\n• /start — Welcome message and menu\n• /digest — Get today's fashion news\n• /preferences — Customize your interests\n• /help — Show this help message`,
+        text: lang === "ru" 
+          ? "❓ *Помощь*\n\n*Команды:*\n• /start — Приветствие и меню\n• /digest — Получить новости\n• /preferences — Настроить интересы\n• /help — Это сообщение"
+          : "❓ *Help*\n\n*Available Commands:*\n• /start — Welcome message and menu\n• /digest — Get today's fashion news\n• /preferences — Customize your interests\n• /help — Show this help message",
         parse_mode: "Markdown",
-        reply_markup: getMainKeyboard(),
+        reply_markup: getMainKeyboard(lang),
       });
       break;
     case "back":
       await sendMessage({
         chat_id: chatId,
-        text: `Back to main menu`,
-        reply_markup: getMainKeyboard(),
+        text: lang === "ru" ? "Главное меню" : "Back to main menu",
+        reply_markup: getMainKeyboard(lang),
       });
       break;
     default:
       if (data.startsWith("pref_")) {
         const category = data.replace("pref_", "");
-        // Save preference
         try {
           await fetch(`${API_URL}/api/subscribe`, {
             method: "POST",
@@ -171,14 +218,14 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
         }
         await sendMessage({
           chat_id: chatId,
-          text: `✅ Added *${category}* to your preferences!`,
+          text: lang === "ru" ? `✅ Добавлено: *${category}*` : `✅ Added *${category}* to your preferences!`,
           parse_mode: "Markdown",
         });
       }
   }
 }
 
-export async function sendDigest(chatId: number): Promise<void> {
+export async function sendDigest(chatId: number, lang: string = "en"): Promise<void> {
   try {
     const res = await fetch(`${API_URL}/api/news?limit=3`);
     const data = await res.json();
@@ -187,22 +234,25 @@ export async function sendDigest(chatId: number): Promise<void> {
     if (news.length === 0) {
       await sendMessage({
         chat_id: chatId,
-        text: "No news available at the moment. Check back later!",
+        text: lang === "ru" ? "Новостей пока нет. Попробуйте позже!" : "No news available at the moment. Check back later!",
       });
       return;
     }
 
-    let digest = "📰 *Today's Fashion Digest*\n\n";
+    const title = lang === "ru" ? "📰 Ежедневный дайджест моды" : "📰 *Today's Fashion Digest*";
+    let digest = title + "\n\n";
 
     for (const item of news) {
       digest += `*${item.brand}*\n`;
       digest += `${item.title}\n`;
-      digest += `${item.summary.slice(0, 100)}...\n\n`;
-      digest += `_Why it matters: ${item.whyItMatters}_\n\n`;
+      digest += `${item.summary.slice(0, 80)}...\n\n`;
+      if (item.url) {
+        digest += `[${lang === "ru" ? "Читать источник" : "Read source"}](${item.url})\n`;
+      }
       digest += "---\n\n";
     }
 
-    digest += "_Powered by ModaScope_";
+    digest += lang === "ru" ? "_Сделано с ❤️ от ModaScope_" : "_Powered by ModaScope_";
 
     await sendMessage({
       chat_id: chatId,
@@ -213,7 +263,7 @@ export async function sendDigest(chatId: number): Promise<void> {
     console.error("Failed to fetch digest:", error);
     await sendMessage({
       chat_id: chatId,
-      text: "Sorry, couldn't fetch the digest. Please try again later.",
+      text: lang === "ru" ? "Не удалось получить новости. Попробуйте позже." : "Sorry, couldn't fetch the digest. Please try again later.",
     });
   }
 }
