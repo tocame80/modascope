@@ -43,6 +43,15 @@ export async function GET(request: Request) {
     }
     
     const gnewsData = await response.json();
+    console.log("GNews response:", JSON.stringify(gnewsData).substring(0, 500));
+    
+    if (!gnewsData.articles || gnewsData.articles.length === 0) {
+      console.log("No articles from GNews, using fallback");
+      const { news } = await import("../data");
+      let fallbackNews = news.slice(0, limit);
+      if (lang === "ru") fallbackNews = await translateNews(fallbackNews, "ru");
+      return NextResponse.json({ data: fallbackNews, meta: { total: news.length, limit, offset: 0, hasMore: false }, source: "fallback" });
+    }
     
     let articles = (gnewsData.articles || []).map((article: any, index: number) => ({
       id: String(index + 1),
