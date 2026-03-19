@@ -237,6 +237,14 @@ export default function Home() {
             <a href="#pricing" className="hover:text-[#C9A962] transition-colors">{t.pricingTitle}</a>
           </div>
           <div className="flex items-center gap-4">
+            <a
+              href="https://t.me/ModaScope_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 text-sm text-[#F5F0E8]/70 hover:text-[#C9A962] transition-colors"
+            >
+              {lang === "ru" ? "Telegram бот" : "Telegram Bot"}
+            </a>
             <button
               onClick={() => setLang(lang === "en" ? "ru" : "en")}
               className="px-3 py-1.5 text-sm border border-[#C9A962]/50 text-[#C9A962] hover:bg-[#C9A962]/10 transition-colors"
