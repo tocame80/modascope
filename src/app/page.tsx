@@ -331,9 +331,9 @@ export default function Home() {
       <section id="preview" className="py-32 bg-[#0F0F0F]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">Today&apos;s Digest</span>
+            <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">{t.previewTitle}</span>
             <h2 className="font-serif text-4xl md:text-5xl text-[#F5F0E8] mt-4">
-              What You&apos;ll Wake Up To
+              {t.previewSubtitle}
             </h2>
           </div>
 
@@ -378,7 +378,7 @@ export default function Home() {
           )}
 
           <div className="text-center mt-12">
-            <p className="text-[#F5F0E8]/40 text-sm">Delivered daily at 7:00 AM via Telegram, Email, or App</p>
+            <p className="text-[#F5F0E8]/40 text-sm">{lang === "ru" ? "Доставляется ежедневно в 7:00 через Telegram, Email или приложение" : "Delivered daily at 7:00 AM via Telegram, Email, or App"}</p>
           </div>
         </div>
       </section>
@@ -386,13 +386,12 @@ export default function Home() {
       <section id="sources" className="py-32">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">Data Sources</span>
+            <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">{t.sourcesTitle}</span>
             <h2 className="font-serif text-4xl md:text-5xl text-[#F5F0E8] mt-4">
-              We Monitor What Matters
+              {lang === "ru" ? "Мы следим за важным" : "We Monitor What Matters"}
             </h2>
             <p className="text-[#F5F0E8]/50 mt-4 max-w-xl mx-auto">
-              Hundreds of sources across brands, publications, retailers, and platforms — 
-              constantly updated.
+              {lang === "ru" ? "Сотни источников: бренды, издания, ритейлеры и платформы — постоянно обновляются." : "Hundreds of sources across brands, publications, retailers, and platforms — constantly updated."}
             </p>
           </div>
 
@@ -409,16 +408,16 @@ export default function Home() {
 
           <div className="mt-16 grid md:grid-cols-3 gap-8">
             <div className="text-center p-8">
-              <span className="font-serif text-5xl text-[#C9A962]">100+</span>
-              <p className="text-[#F5F0E8]/50 mt-2">Sources monitored daily</p>
+              <span className="font-serif text-5xl text-[#C9A962]">{t.stats100}</span>
+              <p className="text-[#F5F0E8]/50 mt-2">{lang === "ru" ? "Источников в день" : t.stats100Label}</p>
             </div>
             <div className="text-center p-8">
-              <span className="font-serif text-5xl text-[#C9A962]">50K+</span>
-              <p className="text-[#F5F0E8]/50 mt-2">Articles analyzed monthly</p>
+              <span className="font-serif text-5xl text-[#C9A962]">{t.stats50}</span>
+              <p className="text-[#F5F0E8]/50 mt-2">{lang === "ru" ? "Статей в месяц" : t.stats50Label}</p>
             </div>
             <div className="text-center p-8">
-              <span className="font-serif text-5xl text-[#C9A962]">2min</span>
-              <p className="text-[#F5F0E8]/50 mt-2">Average digest reading time</p>
+              <span className="font-serif text-5xl text-[#C9A962]">{t.stats2}</span>
+              <p className="text-[#F5F0E8]/50 mt-2">{lang === "ru" ? "Среднее время чтения" : t.stats2Label}</p>
             </div>
           </div>
         </div>
@@ -428,22 +427,22 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">Features</span>
+              <span className="text-[#C9A962] text-xs tracking-[0.3em] uppercase">{lang === "ru" ? "Возможности" : "Features"}</span>
               <h2 className="font-serif text-4xl text-[#F5F0E8] mt-4 mb-6">
-                Built for How You Consume
+                {lang === "ru" ? "Создано для вашего стиля" : "Built for How You Consume"}
               </h2>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-[#F5F0E8] font-medium mb-2">By Brands You Love</h3>
-                  <p className="text-[#F5F0E8]/50 text-sm">Follow specific houses — Prada, Gucci, Miu Miu — and only see their news.</p>
+                  <h3 className="text-[#F5F0E8] font-medium mb-2">{lang === "ru" ? "По брендам" : "By Brands You Love"}</h3>
+                  <p className="text-[#F5F0E8]/50 text-sm">{lang === "ru" ? "Следите за любимыми домами — Prada, Gucci, Miu Miu — и получайте только их новости." : "Follow specific houses — Prada, Gucci, Miu Miu — and only see their news."}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#F5F0E8] font-medium mb-2">By Category</h3>
-                  <p className="text-[#F5F0E8]/50 text-sm">Men&apos;s, women&apos;s, streetwear, high jewelry, sustainability — pick yours.</p>
+                  <h3 className="text-[#F5F0E8] font-medium mb-2">{lang === "ru" ? "По категориям" : "By Category"}</h3>
+                  <p className="text-[#F5F0E8]/50 text-sm">{lang === "ru" ? "Мужская, женская одежда, стритвир, люксовые украшения, экологичность — выбирайте." : "Men's, women's, streetwear, high jewelry, sustainability — pick yours."}</p>
                 </div>
                 <div>
-                  <h3 className="text-[#F5F0E8] font-medium mb-2">By Tone</h3>
-                  <p className="text-[#F5F0E8]/50 text-sm">Collections, collaborations, business news, or runway analysis.</p>
+                  <h3 className="text-[#F5F0E8] font-medium mb-2">{lang === "ru" ? "По стилю" : "By Tone"}</h3>
+                  <p className="text-[#F5F0E8]/50 text-sm">{lang === "ru" ? "Коллекции, коллаборации, бизнес-новости или анализ показов." : "Collections, collaborations, business news, or runway analysis."}</p>
                 </div>
               </div>
             </div>
@@ -501,7 +500,7 @@ export default function Home() {
               >
                 {tier.featured && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#C9A962] text-[#0A0A0A] text-xs font-medium">
-                    Most Popular
+                    {lang === "ru" ? "Популярно" : "Most Popular"}
                   </span>
                 )}
                 <h3 className="font-serif text-2xl text-[#F5F0E8] mb-2">{tier.name}</h3>
@@ -598,12 +597,12 @@ export default function Home() {
             <span className="font-serif text-[#F5F0E8]">ModaScope</span>
           </div>
           <p className="text-[#F5F0E8]/30 text-sm">
-            © 2024 ModaScope. All rights reserved.
+            {t.footer}
           </p>
           <div className="flex gap-6 text-sm text-[#F5F0E8]/40">
-            <a href="#" className="hover:text-[#C9A962] transition-colors">Privacy</a>
-            <a href="#" className="hover:text-[#C9A962] transition-colors">Terms</a>
-            <a href="#" className="hover:text-[#C9A962] transition-colors">Contact</a>
+            <a href="#" className="hover:text-[#C9A962] transition-colors">{lang === "ru" ? "Конфиденциальность" : "Privacy"}</a>
+            <a href="#" className="hover:text-[#C9A962] transition-colors">{lang === "ru" ? "Условия" : "Terms"}</a>
+            <a href="#" className="hover:text-[#C9A962] transition-colors">{lang === "ru" ? "Контакты" : "Contact"}</a>
           </div>
         </div>
       </footer>
