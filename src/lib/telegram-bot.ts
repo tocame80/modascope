@@ -1,4 +1,5 @@
 import { TelegramUpdate, TelegramSendMessageParams, TelegramInlineKeyboardMarkup } from "./telegram";
+import { translateNews } from "./translation";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const API_URL = process.env.NEXT_PUBLIC_URL || "https://modascope-eb47.vercel.app";
@@ -233,7 +234,7 @@ export async function sendDigest(chatId: number, lang: string = "en"): Promise<v
   try {
     const res = await fetch(`${API_URL}/api/news?limit=3`);
     const data = await res.json();
-    const news = data.data || [];
+    let news = data.data || [];
 
     if (news.length === 0) {
       await sendMessage({
@@ -241,6 +242,11 @@ export async function sendDigest(chatId: number, lang: string = "en"): Promise<v
         text: lang === "ru" ? "Новостей пока нет. Попробуйте позже!" : "No news available at the moment. Check back later!",
       });
       return;
+    }
+
+    // Translate news if Russian
+    if (lang === "ru") {
+      news = await translateNews(news, "ru");
     }
 
     const title = lang === "ru" ? "📰 Ежедневный дайджест моды" : "📰 *Today's Fashion Digest*";
