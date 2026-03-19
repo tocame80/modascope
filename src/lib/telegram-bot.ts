@@ -44,13 +44,17 @@ function getLanguageKeyboard(): TelegramInlineKeyboardMarkup {
   };
 }
 
-function getPreferencesKeyboard(): TelegramInlineKeyboardMarkup {
+function getPreferencesKeyboard(lang: string = "en"): TelegramInlineKeyboardMarkup {
+  const labels = lang === "ru"
+    ? { runway: "👗 Показы", business: "💼 Бизнес", analysis: "📊 Анализ", sustainability: "🌱 Экология", streetwear: "👟 Стритвир", jewelry: "💎 Украшения", back: "« Назад" }
+    : { runway: "👗 Runway", business: "💼 Business", analysis: "📊 Analysis", sustainability: "🌱 Sustainability", streetwear: "👟 Streetwear", jewelry: "💎 High Jewelry", back: "« Back" };
+  
   return {
     inline_keyboard: [
-      [{ text: "👗 Runway", callback_data: "pref_runway" }, { text: "💼 Business", callback_data: "pref_business" }],
-      [{ text: "📊 Analysis", callback_data: "pref_analysis" }, { text: "🌱 Sustainability", callback_data: "pref_sustainability" }],
-      [{ text: "👟 Streetwear", callback_data: "pref_streetwear" }, { text: "💎 High Jewelry", callback_data: "pref_jewelry" }],
-      [{ text: "« Back", callback_data: "back" }],
+      [{ text: labels.runway, callback_data: `pref_runway` }, { text: labels.business, callback_data: `pref_business` }],
+      [{ text: labels.analysis, callback_data: `pref_analysis` }, { text: labels.sustainability, callback_data: `pref_sustainability` }],
+      [{ text: labels.streetwear, callback_data: `pref_streetwear` }, { text: labels.jewelry, callback_data: `pref_jewelry` }],
+      [{ text: labels.back, callback_data: "back" }],
     ],
   };
 }
@@ -122,7 +126,7 @@ async function handleCommand(chatId: number, firstName: string | undefined, comm
         chat_id: chatId,
         text: lang === "ru" ? "⚙️ *Ваши предпочтения*\n\nВыберите категории:" : "⚙️ *Your Preferences*\n\nSelect the categories you're interested in:",
         parse_mode: "Markdown",
-        reply_markup: getPreferencesKeyboard(),
+        reply_markup: getPreferencesKeyboard(lang),
       });
       break;
 
@@ -184,7 +188,7 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
         chat_id: chatId,
         text: lang === "ru" ? "⚙️ *Ваши предпочтения*\n\nВыберите категории:" : "⚙️ *Your Preferences*\n\nSelect the categories you're interested in:",
         parse_mode: "Markdown",
-        reply_markup: getPreferencesKeyboard(),
+        reply_markup: getPreferencesKeyboard(lang),
       });
       break;
     case "help":
