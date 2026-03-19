@@ -231,9 +231,9 @@ async function handleCallbackQuery(callbackQuery: { id: string; data?: string; m
 
 export async function sendDigest(chatId: number, lang: string = "en"): Promise<void> {
   try {
-    const res = await fetch(`${API_URL}/api/news?limit=3&lang=${lang}`);
+    const res = await fetch(`${API_URL}/api/news?limit=3`);
     const data = await res.json();
-    let news = data.data || [];
+    const news = data.data || [];
 
     if (news.length === 0) {
       await sendMessage({
@@ -249,7 +249,7 @@ export async function sendDigest(chatId: number, lang: string = "en"): Promise<v
     for (const item of news) {
       digest += `*${item.brand}*\n`;
       digest += `${item.title}\n`;
-      digest += `${item.summary.slice(0, 80)}...\n\n`;
+      digest += `${item.summary?.slice(0, 80) || ""}...\n\n`;
       if (item.url) {
         digest += `[${lang === "ru" ? "Читать источник" : "Read source"}](${item.url})\n`;
       }
